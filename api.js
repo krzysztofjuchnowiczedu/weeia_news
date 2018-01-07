@@ -26,25 +26,44 @@ router.get('/', function (req, res) {
   }
   );
   res.send('dbHelper.getAllNews()');
-  getNews();
 });
 
-function getNews(typeNews = 0, fromDate = null) {
+router.get('/getNews', function (req, res) {
+  console.log('router.getNews()');
+  getNews(function(result){
+    if(result) {
+      res.send(result);
+    }
+  });
+  //}, 1);  //see newsTypeEnum
+});
+
+getNews = function(callback, typeNews = 0, fromDate = null) {
   let dbHelper = new DBHelper();
 
   if (typeNews === NewsTypeEnum.INFO || 
       typeNews === NewsTypeEnum.REMINDER || 
       typeNews === NewsTypeEnum.SYSTEM) {
-    return dbHelper.getSpecificNews(typeNews, fromDate);
+    //TODO
+    dbHelper.getSpecificNews(function(result){
+      if(result){
+        if (typeof callback !== 'function') {
+          callback = false;
+        }
+        if (callback) {
+          callback(result); 
+        }
+      }
+    }, typeNews, fromDate);
   } else {
     dbHelper.getAllNews(function(result){
       if(result){
-        //return result;
-        result.forEach(function (news) {
-          var newsJSON = JSON.stringify(news);
-          console.log(newsJSON);
-          console.log('');
-        });
+        if (typeof callback !== 'function') {
+          callback = false;
+        }
+        if (callback) {
+          callback(result); 
+        }
       }
     });
   }

@@ -22,25 +22,31 @@ DBHelper.prototype.insertNews = function(news) {
 });
 }
 
-DBHelper.prototype.getSpecificNews = function(typeNews, fromDate) {
+DBHelper.prototype.getSpecificNews = function(callback, typeNews, fromDate) {
+  console.log('DBHelper.prototype.getSpecificNews: '+typeNews);
   MongoClient.connect(this.mongoURL, function(err, db) {
     if (err){
       throw err;
     }
     var database = db.db("mydb");
-    database.collection("news").find({}).toArray(function(err, result) {
+    database.collection("news").find({type:{$eq:typeNews}}).toArray(function(err, result) {
+      if (typeof callback !== 'function') {
+        callback = false;
+      }
       if (err){
         throw err;
       }
       //console.log(result);
-      return result;
+      if (callback) {
+        callback(result); 
+      }
     });
     db.close();
   });
-  return null;
 }
 
 DBHelper.prototype.getAllNews = function(callback) {
+  console.log('DBHelper.prototype.getAllNews');
   MongoClient.connect(this.mongoURL, function(err, db) {
     if (err){
       throw err;
