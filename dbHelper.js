@@ -11,10 +11,8 @@ DBHelper.prototype.insertNews = function(news) {
   if (err){
     throw err;
   }
-  console.log("Insert news - no error");
-
-  var dbase = db.db("mydb");
-  dbase.collection("news").insertOne(news, function(err, res) {
+  var database = db.db("mydb");
+  database.collection("news").insertOne(news, function(err, res) {
     if (err){
       throw err;
     }
@@ -24,7 +22,7 @@ DBHelper.prototype.insertNews = function(news) {
 });
 }
 
-DBHelper.prototype.getAllNews = function() {
+DBHelper.prototype.getSpecificNews = function(typeNews, fromDate) {
   MongoClient.connect(this.mongoURL, function(err, db) {
     if (err){
       throw err;
@@ -34,7 +32,31 @@ DBHelper.prototype.getAllNews = function() {
       if (err){
         throw err;
       }
-      console.log(result);
+      //console.log(result);
+      return result;
+    });
+    db.close();
+  });
+  return null;
+}
+
+DBHelper.prototype.getAllNews = function(callback) {
+  MongoClient.connect(this.mongoURL, function(err, db) {
+    if (err){
+      throw err;
+    }
+    var database = db.db("mydb");
+    database.collection("news").find({}).toArray(function(err, result) {
+      if (typeof callback !== 'function') {
+        callback = false;
+      }
+      if (err){
+        throw err;
+      }
+      //console.log(result);
+      if (callback) {
+        callback(result); 
+      }
     });
     db.close();
   });
