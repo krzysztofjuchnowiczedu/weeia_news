@@ -1,13 +1,13 @@
-var express = require('express')
-var router = express.Router()
+var express = require('express');
+var router = express.Router();
 const Scrapper = require('./scrapper.js');
 const DBHelper = require('./dbHelper.js');
-const News = require('./news.js');
-const NewsTypeEnum = require('./newsTypeEnum.js');
+const News = require('../model/news.js');
+const NewsTypeEnum = require('../model/newsTypeEnum.js');
 
 // middleware that is specific to this router
 router.use(function timeLog (req, res, next) {
-  console.log('Time: ', Date.now())
+  console.log('Time: ', Date.now());
   next()
 });
 
@@ -38,12 +38,15 @@ router.get('/getNews', function (req, res) {
   //}, 1);  //see newsTypeEnum
 });
 
-getNews = function(callback, typeNews = 0, fromDate = null) {
+getNews = function(callback, newsType, fromDate) {
   let dbHelper = new DBHelper();
 
-  if (typeNews === NewsTypeEnum.INFO || 
-      typeNews === NewsTypeEnum.REMINDER || 
-      typeNews === NewsTypeEnum.SYSTEM) {
+  newsType = 0;
+  fromDate = null;
+
+  if (newsType === NewsTypeEnum.INFO ||
+      newsType === NewsTypeEnum.REMINDER ||
+      newsType === NewsTypeEnum.SYSTEM) {
     //TODO
     dbHelper.getSpecificNews(function(result){
       if(result){
@@ -54,7 +57,7 @@ getNews = function(callback, typeNews = 0, fromDate = null) {
           callback(result); 
         }
       }
-    }, typeNews, fromDate);
+    }, newsType, fromDate);
   } else {
     dbHelper.getAllNews(function(result){
       if(result){
@@ -67,7 +70,7 @@ getNews = function(callback, typeNews = 0, fromDate = null) {
       }
     });
   }
-}
+};
 
 function initDataBase() {
   console.log('initDataBase()');
@@ -105,7 +108,6 @@ function initDataBase() {
   dbHelper.insertNews(news14);
   dbHelper.insertNews(news15);
   dbHelper.insertNews(news16);
-  return;
 }
 
 module.exports = router;

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+
+  <title>WEEIA News</title>
+</head>
+<body>
+
+  <div class="w3-sidebar w3-bar-block" style="width: 250px">
+    <h2 class="w3-text-light-black">News type</h2>
+    <hr style="width:50px; border:2px solid black" class="w3-round">
+    <select class="selectpicker" id="newsTypePicker">
+      <option>All</option>
+      <option>Info</option>
+      <option>Reminder</option>
+      <option>System</option>
+    </select>
+  </div>
+
+  <div class="w3-sidebar w3-bar-block" style="width: 200px; right:0">
+    <h2 class="w3-text-light-black">Reminders</h2>
+    <hr style="width:50px; border:2px solid black" class="w3-round">
+
+    some reminders here like
+    <br>
+    reminder 1
+    <br>
+    reminder 2
+    <br>
+    reminder 3
+    <br>
+    TODO
+  </div>
+
+
+  <div class="w3-main" style="margin-left: 300px; margin-right: 250px;" align="center">
+    <div>
+      <input type="text" class="form-control" id="filterInputText" onkeyup="filterNews()" placeholder="Search for news..." style="margin-top: 50px; margin-bottom: 50px;">
+    </div>
+    <div style="margin-bottom: 100px">
+      <table id="mainNewsTable">
+        <thead>
+        <tr>
+          <th data-field="title">Title</th>
+          <th data-field="content">Content</th>
+          <th data-field="type">Type</th>
+        </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
+
+  <!-- Navbar (sticky bottom) -->
+  <div class="w3-bottom w3-hide-small w3-bar w3-blue w3-center w3-padding w3-opacity-min w3-hover-opacity-off">
+    <a href="https://www.p.lodz.pl/" target="_blank" style="width:33%" class="w3-bar-item w3-button w3-hover-red">Politechnika Łódzka</a>
+    <a href="http://www.weeia.p.lodz.pl/" target="_blank" style="width:33%" class="w3-bar-item w3-button w3-hover-red">WEEIA</a>
+    <a href="https://webdziekanat.p.lodz.pl/" target="_blank" style="width:33%" class="w3-bar-item w3-button w3-hover-red">Web Dziekanat</a>
+  </div>
+
+<script>
+  $.get( "/api/v1/getNews", function( news ) {
+    $('#mainNewsTable').bootstrapTable({
+      data: news
+    });
+  });
+
+  filterNews = function() {
+    var input, filter, table, tr, td, i;
+    input = document.getElementById("filterInputText");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("mainNewsTable");
+    tr = table.getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[0];
+      if (td) {
+        if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
+</script>
+</body>
+</html>

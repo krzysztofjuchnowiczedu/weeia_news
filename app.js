@@ -1,10 +1,27 @@
-var api = require('./api.js')
 var express = require('express');
 var app = express();
+var router = express.Router();
 
-app.use(express.static('public'));
+var $ = require('jquery')(require('jsdom/lib/old-api').jsdom().defaultView);
+
+const api = require('./actions/api.js');
+var pathToViews = __dirname + '/views/';
 
 app.use('/api/v1', api);
+app.use('/', router);
+
+router.get("/", function(req, res){
+  api.getNews(function(result){
+    if(result) {
+      $(function () {
+        $('#mainNewsTable').bootstrapTable({
+          data: result
+        });
+      });
+    }
+  });
+  res.sendFile(pathToViews + "index.html");
+});
 
 var server = app.listen(8081, function () {
    console.log("Start server")

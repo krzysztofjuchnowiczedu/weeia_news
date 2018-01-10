@@ -1,6 +1,6 @@
 var request = require('request');
 var cheerio = require('cheerio');
-const News = require('./news.js');
+const News = require('../model/news.js');
 
 function Scrapper () {
 
