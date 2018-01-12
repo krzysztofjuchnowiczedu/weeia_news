@@ -11,20 +11,21 @@ router.use(function timeLog (req, res, next) {
   next()
 });
 
-router.get('/', function (req, res) {
-  console.log('router.get()');
+router.get('/scrapper', function (req, res) {
   let scrapper = new Scrapper();
   let dbHelper = new DBHelper();
 
-  scrapper.getWEEIAContent(function(result){
-    if(result){
-      result.forEach(function (news) {
-        console.log('scrapper - dbHelper.insertNews()');
-        //dbHelper.insertNews(news);
-      });
+  scrapper.getAllSitesContent(function(error, newsArray){
+    if(!error){
+      if(newsArray){
+        result.newsArray(function (news) {
+          news.type = NewsTypeEnum.INFO;
+          dbHelper.insertNews(news);
+        });
+      }
     }
-  }
-  );
+  });
+
   res.send('dbHelper.getAllNews()');
 });
 
@@ -35,7 +36,6 @@ router.get('/getNews', function (req, res) {
       res.send(result);
     }
   });
-  //}, 1);  //see newsTypeEnum
 });
 
 getNews = function(callback, newsType, fromDate) {
@@ -54,7 +54,7 @@ getNews = function(callback, newsType, fromDate) {
           callback = false;
         }
         if (callback) {
-          callback(result); 
+          callback(result);
         }
       }
     }, newsType, fromDate);
@@ -65,7 +65,7 @@ getNews = function(callback, newsType, fromDate) {
           callback = false;
         }
         if (callback) {
-          callback(result); 
+          callback(result);
         }
       }
     });

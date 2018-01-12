@@ -6,29 +6,88 @@ function Scrapper () {
 
 }
 
-Scrapper.prototype.getWEEIAContent = function(callback) {
-  var url = 'http://www.weeia.p.lodz.pl/';
-  let _this = this;
-  request(url, function(error, response, html){
-    if(error){
-      console.log(error);
-      return;
-    }
-  var news = _this.parseWEEIAContentToNews(html);
-  callback(news);
-  });
-};
+Scrapper.prototype.getAllSitesContent = functions(callback){
+  var allNews = [];
 
-Scrapper.prototype.parseWEEIAContentToNews = function(content) {
-  var $ = cheerio.load(content);
-  var newsArray = [];
-  $('.News').find('.Item').each(function (i, elem) {
-    var news = new News();
-    news.title = $(this).find('.Title').text();
-    //dodać parsowanie
-    newsArray.push(news);
+  getFacultyWebsiteContent(function(error, facultyNews){
+    if(error){
+      callback(error, null);
+    } else{
+      allNews.push(facultyNews);
+      getUniversityWebsiteContent(function(error, universityNews){
+        if(error){
+          callback(error, null);
+        } else{
+          allNews.push(universityNews);
+          callback(null, allNews);
+        }
+      });
+    }
   });
-  return newsArray;
-};
+}
+
+
+
+Scrapper.prototype.getFacultyWebsiteContent = functions(callback){
+  let websiteURL = 'http://www.weeia.p.lodz.pl/';
+  request(websiteURL, function(error, response, html){
+    var newsArray = [];
+    if(!error){
+      var $ = cheerio.load(html);
+      $('.News').find('.Content').each(function (i, elem) {
+        var news = new News();
+        var data = $(this);
+        news.date = data.find('.Date').text().trim();
+        news.title = data.find('.Title').text().trim();
+        news.content = data.find('.Preview').text().trim();
+        newsArray.push(news);
+      });
+
+      $('.Success').find('.Content').each(function (i, elem) {
+        var news = new News();
+        var data = $(this);
+        news.date = data.find('.Date').text().trim();
+        news.title = data.find('.Title').text().trim();
+        news.content = data.find('.Preview').text().trim();
+        newsArray.push(news);
+      });
+
+      $('.Komunikaty').find('.Content').each(function (i, elem) {
+        var news = new News();
+        var data = $(this);
+        news.date = data.find('.Date').text().trim();
+        news.title = data.find('.Title').text().trim();
+        news.content = data.find('.Preview').text().trim();
+        newsArray.push(news);
+      });
+
+      callback(null, newsArray);
+    } else {
+      callback(error, null);
+    }
+  }
+}
+
+Scrapper.prototype.getUniversityWebsiteContent = functions(callback){
+  let websiteURL = 'http://www.p.lodz.pl/';
+  request(websiteURL, function(error, response, html){
+    var newsArray = [];
+    if(!error){
+      var $ = cheerio.load(html);
+
+      $('.News').find('.Content').each(function (i, elem) {
+        var news = new News();
+        var data = $(this);
+        news.title = data.find('.Title').text().trim();
+        news.content = data.find('.Preview').text().trim();
+        newsArray.push(news);
+      });
+      
+      callback(null, newsArray);
+    } else {
+      callback(error, null);
+    }
+  }
+}
 
 module.exports = Scrapper;
