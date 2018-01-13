@@ -20,7 +20,7 @@ router.get('/scrapper', function (req, res) {
       if(newsArray){
 	console.log(newsArray);
         newsArray.forEach(function (news) {
-          console.log(news); 
+          console.log(news);
           dbHelper.insertNews(news);
         });
       }
