@@ -22,6 +22,25 @@ DBHelper.prototype.insertNews = function(news) {
 });
 }
 
+DBHelper.prototype.updateNews = function(news) {
+  console.log("Update news");
+
+  MongoClient.connect(this.mongoURL, function(err, db) {
+  if (err){
+    throw err;
+  }
+  var database = db.db("mydb");
+  database.collection("news").update(
+    {
+      "title": news.title,
+      "content": news.content
+    },
+    news,
+    { upsert: true }
+  );
+});
+}
+
 DBHelper.prototype.getSpecificNews = function(callback, typeNews, fromDate) {
   console.log('DBHelper.prototype.getSpecificNews: '+typeNews);
   MongoClient.connect(this.mongoURL, function(err, db) {
