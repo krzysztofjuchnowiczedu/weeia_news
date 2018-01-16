@@ -1,97 +1,130 @@
 var request = require('request');
 var cheerio = require('cheerio');
-const News = require('../model/news.js');
+var News = require('../model/news.js');
+var Promise = require('promise');
 
 function Scrapper () {
 
 }
 
-Scrapper.prototype.getAllSitesContent = function(callback){
-  var allNews = [];
-  let _this = this;
-  _this.getFacultyWebsiteContent(function(error, facultyNews){
-    if(error){
-      callback(error, null);
-    } else{
-      allNews = allNews.concat(facultyNews);
-      _this.getUniversityWebsiteContent(function(error, universityNews){
-        if(error){
-          callback(error, null);
-        } else{
-          allNews = allNews.concat(universityNews);
-          callback(null, allNews);
+Scrapper.prototype.getFacultyWebsiteContent = new Promise(function (resolve, reject) {
+    let websiteURL = 'http://www.weeia.p.lodz.pl/';
+    var newsArray = [];
+    request(websiteURL, function(error, response, html){
+        if(!error){
+            var $ = cheerio.load(html);
+            $('.News').find('.Content').find('.Item').each(function (i, elem) {
+                var news = new News();
+                var data = $(this);
+                news.date = data.find('.Date').text().trim();
+                news.title = data.find('.Title').text().trim();
+                news.content = data.find('.Preview').text().trim();
+                if(news.title){
+                    newsArray.push(news);
+                }
+            });
+
+            $('.Success').find('.Content').find('.Item').each(function (i, elem) {
+                var news = new News();
+                var data = $(this);
+                news.date = data.find('.Date').text().trim();
+                news.title = data.find('.Title').text().trim();
+                news.content = data.find('.Preview').text().trim();
+                if(news.title){
+                    newsArray.push(news);
+                }
+            });
+
+            $('.Komunikaty').find('.Content').find('.Item').each(function (i, elem) {
+                var news = new News();
+                var data = $(this);
+                news.date = data.find('.Date').text().trim();
+                news.title = data.find('.Title').text().trim();
+                news.content = data.find('.Preview').text().trim();
+                if(news.title){
+                    newsArray.push(news);
+                }
+
+            });
+            console.log("WEEIA News count: " + newsArray.length);
+            resolve(newsArray);
+        } else {
+            reject(error);
         }
-      });
-    }
-  });
-}
+    });
+});
 
-
-
-Scrapper.prototype.getFacultyWebsiteContent = function(callback){
-  let websiteURL = 'http://www.weeia.p.lodz.pl/';
-  request(websiteURL, function(error, response, html){
+Scrapper.prototype.getUniversityWebsiteContent = new Promise(function (resolve, reject) {
+    let websiteURL = 'http://www.p.lodz.pl/';
     var newsArray = [];
-    if(!error){
-      var $ = cheerio.load(html);
-      $('.News').find('.Content').each(function (i, elem) {
-        var news = new News();
-        var data = $(this);
-	news.type = 0;
-        news.date = data.find('.Date').text().trim();
-        news.title = data.find('.Title').text().trim();
-        news.content = data.find('.Preview').text().trim();
-        newsArray.push(news);
-      });
+    request(websiteURL, function(error, response, html){
+        if(!error){
+            var $ = cheerio.load(html);
 
-      $('.Success').find('.Content').each(function (i, elem) {
-        var news = new News();
-        var data = $(this);
-	news.type = 0;
-        news.date = data.find('.Date').text().trim();
-        news.title = data.find('.Title').text().trim();
-        news.content = data.find('.Preview').text().trim();
-        newsArray.push(news);
-      });
+            $('.News').find('.Content').find('.Item').each(function (i, elem) {
+                var news = new News();
+                var data = $(this);
+                news.title = data.find('.Title').text().trim();
+                news.content = data.find('.Preview').text().trim();
+                if(news.title){
+                    newsArray.push(news);
+                }
+            });
 
-      $('.Komunikaty').find('.Content').each(function (i, elem) {
-        var news = new News();
-        var data = $(this);
-	news.type = 0;        
-	news.date = data.find('.Date').text().trim();
-        news.title = data.find('.Title').text().trim();
-        news.content = data.find('.Preview').text().trim();
-        newsArray.push(news);
-      });
+            resolve(newsArray);
+        } else {
+            reject(error);
+        }
+    });
+});
 
-      callback(null, newsArray);
-    } else {
-      callback(error, null);
+Scrapper.prototype.getWEEIAStudentsGovernmentWebsiteContent = new Promise(
+    function (resolve, reject) {
+        let websiteURL = 'http://eeia.samorzad.p.lodz.pl/blog';
+        var newsArray = [];
+        request(websiteURL, function(error, response, html){
+            if(!error){
+                var $ = cheerio.load(html);
+                $('#container').find('.row').find('div').each(function (i, elem) {
+                    var news = new News();
+                    var data = $(this);
+
+                    news.url = data.find('h4').find('a').attr('href');
+                    news.title = data.find('h4').find('a').text();
+                    news.imageURL = data.find('img').attr('src');
+                    if(news.title){
+                        newsArray.push(news);
+                    }
+                });
+                resolve(newsArray);
+            } else {
+                reject(error);
+            }
+        });
     }
-  });
-}
+);
 
-Scrapper.prototype.getUniversityWebsiteContent = function(callback){
-  let websiteURL = 'http://www.p.lodz.pl/';
-  request(websiteURL, function(error, response, html){
+Scrapper.prototype.getUniversityStudentsGovernmentWebsiteContent = new Promise(function (resolve, reject) {
+    let websiteURL = 'https://samorzad.p.lodz.pl/blog';
     var newsArray = [];
-    if(!error){
-      var $ = cheerio.load(html);
-
-      $('.News').find('.Content').each(function (i, elem) {
-        var news = new News();
-        var data = $(this);
-        news.type = 0;
-	news.title = data.find('.Title').text().trim();
-        news.content = data.find('.Preview').text().trim();
-        newsArray.push(news);
-      });
-      
-      callback(null, newsArray);
-    } else {
-      callback(error, null);
-    }
-  });
-}
+    request(websiteURL, function(error, response, html){
+        if(!error){
+            var $ = cheerio.load(html);
+            $('.blog-list').find('article').each(function (i, elem) {
+                var news = new News();
+                var data = $(this);
+                news.imageURL = data.find('.post-thumb').find('a').attr('href');
+                news.title = data.find('.post-body').find('h4').text();
+                news.url = data.find('a').attr('href');
+                news.content = data.find('.post-intro').text();
+                newsArray.push(news);
+            });
+            console.log(newsArray);
+            resolve(newsArray);
+        } else {
+            reject(error);
+        }
+    });
+});
 
 module.exports = Scrapper;
