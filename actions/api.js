@@ -4,6 +4,7 @@ const Scrapper = require('./scrapper.js');
 const DBHelper = require('./dbHelper.js');
 const News = require('../model/news.js');
 const NewsTypeEnum = require('../model/newsTypeEnum.js');
+var Promise = require('promise');
 
 // middleware that is specific to this router
 router.use(function timeLog (req, res, next) {
@@ -12,23 +13,21 @@ router.use(function timeLog (req, res, next) {
 });
 
 router.get('/scrapper', function (req, res) {
-  let scrapper = new Scrapper();
-  let dbHelper = new DBHelper();
+    let scrapper = new Scrapper();
+    Promise.all([
+        scrapper.getFacultyWebsiteContent,
+        scrapper.getUniversityWebsiteContent,
+        scrapper.getWEEIAStudentsGovernmentWebsiteContent,
+        scrapper.getUniversityStudentsGovernmentWebsiteContent
+    ]).then(function(values) {
 
-  scrapper.getAllSitesContent(function(error, newsArray){
-    if(!error){
-      if(newsArray){
-	console.log(newsArray);
-        newsArray.forEach(function (news) {
-          console.log(news);
-          dbHelper.updateNews(news);
-        });
-      }
-    }
-  });
+        res.send(values);
+    }).catch(function (reason) {
+        console.log("Error: " + reason);
+    });
 
-  res.send('dbHelper.getAllNews()');
 });
+
 
 router.get('/getNews', function (req, res) {
   console.log('router.getNews()');

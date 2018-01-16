@@ -4,6 +4,7 @@ var router = express.Router();
 var Scrapper = require('./actions/scrapper.js');
 var DBHelper = require('./actions/dbHelper.js');
 var CronJob = require('cron').CronJob;
+var Promise = require('promise');
 
 var $ = require('jquery')(require('jsdom/lib/old-api').jsdom().defaultView);
 
@@ -32,16 +33,21 @@ function runScrapper(){
   let scrapper = new Scrapper();
   let dbHelper = new DBHelper();
 
-  scrapper.getAllSitesContent(function(error, newsArray){
-    if(!error){
-      if(newsArray){
-        newsArray.forEach(function (news) {
-          console.log(news);
-          dbHelper.updateNews(news);
-        });
+  Promise.all([scrapper.getFacultyWebsiteContent,
+      scrapper.getUniversityWebsiteContent,
+      scrapper.getWEEIAStudentsGovernmentWebsiteContent,
+      scrapper.getUniversityStudentsGovernmentWebsiteContent]).then(function(newsArray) {
+       if(newsArray){
+           newsArray.forEach(function (newsSource) {
+               newsSource.forEach(function (news) {
+                   dbHelper.updateNews(news);
+               });
+           });
       }
-    }
+  }).catch(function (reason) {
+      console.log("Error: " + reason);
   });
+
 }
 
 function startCron(){
@@ -57,11 +63,12 @@ function startCron(){
 }
 
 var server = app.listen(8081, function () {
-   console.log("Start server")
+   console.log("Start server");
    startCron();
-   var host = server.address().address
-   var port = server.address().port
-   console.log("Example app listening at http://%s:%s", host, port)
+   runScrapper();
+   var host = server.address().address;
+   var port = server.address().port;
+   console.log("Example app listening at http://%s:%s", host, port);
    //api.initDataBase()
 })
 

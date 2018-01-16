@@ -5,8 +5,6 @@ function DBHelper () {
 }
 
 DBHelper.prototype.insertNews = function(news) {
-  console.log("Insert news");
-
   MongoClient.connect(this.mongoURL, function(err, db) {
   if (err){
     throw err;
@@ -16,15 +14,12 @@ DBHelper.prototype.insertNews = function(news) {
     if (err){
       throw err;
     }
-    console.log("1 document inserted: " + news.title);
     db.close();
   });
 });
 }
 
 DBHelper.prototype.updateNews = function(news) {
-  console.log("Update news");
-
   MongoClient.connect(this.mongoURL, function(err, db) {
   if (err){
     throw err;
