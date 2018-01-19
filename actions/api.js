@@ -4,6 +4,7 @@ const Scrapper = require('./scrapper.js');
 const DBHelper = require('./dbHelper.js');
 const News = require('../model/news.js');
 const NewsTypeEnum = require('../model/newsTypeEnum.js');
+var Promise = require('promise');
 
 // middleware that is specific to this router
 router.use(function timeLog (req, res, next) {
@@ -11,22 +12,22 @@ router.use(function timeLog (req, res, next) {
   next()
 });
 
-router.get('/', function (req, res) {
-  console.log('router.get()');
-  let scrapper = new Scrapper();
-  let dbHelper = new DBHelper();
+router.get('/scrapper', function (req, res) {
+    let scrapper = new Scrapper();
+    Promise.all([
+        scrapper.getFacultyWebsiteContent,
+        scrapper.getUniversityWebsiteContent,
+        scrapper.getWEEIAStudentsGovernmentWebsiteContent,
+        scrapper.getUniversityStudentsGovernmentWebsiteContent
+    ]).then(function(values) {
 
-  scrapper.getWEEIAContent(function(result){
-    if(result){
-      result.forEach(function (news) {
-        console.log('scrapper - dbHelper.insertNews()');
-        //dbHelper.insertNews(news);
-      });
-    }
-  }
-  );
-  res.send('dbHelper.getAllNews()');
+        res.send(values);
+    }).catch(function (reason) {
+        console.log("Error: " + reason);
+    });
+
 });
+
 
 router.get('/getNews', function (req, res) {
   console.log('router.getNews()');
@@ -35,7 +36,6 @@ router.get('/getNews', function (req, res) {
       res.send(result);
     }
   });
-  //}, 1);  //see newsTypeEnum
 });
 
 getNews = function(callback, newsType, fromDate) {
@@ -54,7 +54,7 @@ getNews = function(callback, newsType, fromDate) {
           callback = false;
         }
         if (callback) {
-          callback(result); 
+          callback(result);
         }
       }
     }, newsType, fromDate);
@@ -65,7 +65,7 @@ getNews = function(callback, newsType, fromDate) {
           callback = false;
         }
         if (callback) {
-          callback(result); 
+          callback(result);
         }
       }
     });
