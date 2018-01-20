@@ -6,35 +6,35 @@ function DBHelper () {
 
 DBHelper.prototype.insertNews = function(news) {
   MongoClient.connect(this.mongoURL, function(err, db) {
-  if (err){
-    throw err;
-  }
-  var database = db.db("mydb");
-  database.collection("news").insertOne(news, function(err, res) {
     if (err){
       throw err;
     }
-    db.close();
+    var database = db.db("mydb");
+    database.collection("news").insertOne(news, function(err, res) {
+      if (err){
+        throw err;
+      }
+      db.close();
+    });
   });
-});
-}
+};
 
 DBHelper.prototype.updateNews = function(news) {
   MongoClient.connect(this.mongoURL, function(err, db) {
-  if (err){
-    throw err;
-  }
-  var database = db.db("mydb");
-  database.collection("news").update(
-    {
-      "title": news.title,
-      "content": news.content
-    },
-    news,
-    { upsert: true }
-  );
-});
-}
+    if (err){
+      throw err;
+    }
+    var database = db.db("mydb");
+    database.collection("news").update(
+      {
+        "title": news.title,
+        "content": news.content
+      },
+      news,
+      { upsert: true }
+    );
+  });
+};
 
 DBHelper.prototype.getSpecificNews = function(callback, typeNews, fromDate) {
   console.log('DBHelper.prototype.getSpecificNews: '+typeNews);
@@ -57,7 +57,7 @@ DBHelper.prototype.getSpecificNews = function(callback, typeNews, fromDate) {
     });
     db.close();
   });
-}
+};
 
 DBHelper.prototype.getAllNews = function(callback) {
   console.log('DBHelper.prototype.getAllNews');
@@ -80,6 +80,6 @@ DBHelper.prototype.getAllNews = function(callback) {
     });
     db.close();
   });
-}
+};
 
 module.exports = DBHelper;
