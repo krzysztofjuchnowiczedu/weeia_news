@@ -51,12 +51,13 @@
       <input type="text" class="form-control" id="filterInputText" onkeyup="filterNews()" placeholder="Search for news..." style="margin-top: 50px; margin-bottom: 50px;">
     </div>
     <div style="margin-bottom: 100px">
-      <table id="mainNewsTable">
+      <table id="mainNewsTable" data-show-header="false">
         <thead>
         <tr>
           <th data-field="title">Title</th>
           <th data-field="content">Content</th>
           <th data-field="type">Type</th>
+          <th data-field="date">Date</th>
         </tr>
         </thead>
       </table>
@@ -77,6 +78,23 @@
     });
   });
 
+  $('#newsTypePicker').on('changed.bs.select', function () {
+    var table, tr, td, i;
+    var newValue = $(".selectpicker option:selected").val();
+    table = document.getElementById("mainNewsTable");
+    tr = table.getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[2];
+      if (td) {
+        if (newValue.toUpperCase() === "ALL" || newValue.toUpperCase() === td.innerHTML.toUpperCase()) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  });
+
   filterNews = function() {
     var input, filter, table, tr, td, i;
     input = document.getElementById("filterInputText");
@@ -93,7 +111,7 @@
         }
       }
     }
-  }
+  };
 </script>
 </body>
 </html>

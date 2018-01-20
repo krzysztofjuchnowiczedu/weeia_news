@@ -1,5 +1,5 @@
 
-function News (type = 0, date, title, url, content, expiryDate = null, imageURL) {
+function News (type = "info", date, title, url, content, expiryDate = null, imageURL) {
   this.type = type;
   this.date = date;
   this.title = title;

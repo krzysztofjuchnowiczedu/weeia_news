@@ -1,7 +1,7 @@
 var newsTypeEnum = {
-  INFO: 1,
-  REMINDER: 2,
-  SYSTEM: 3,
+  INFO: "info",
+  REMINDER: "reminder",
+  SYSTEM: "system"
 };
 
-module.exports = newsTypeEnum;
+  module.exports = newsTypeEnum;
